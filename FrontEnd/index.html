@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨境汇款业务查询系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="title">跨境汇款业务查询系统</h1>
+
+        <div class="search-box">
+            <input type="text" id="swift-input" placeholder="请输入SWIFT业务编号（如：FNBCCNBJXXX）" />
+            <button id="search-button">立即查询</button>
+        </div>
+
+        <div class="result-container" id="result-container" style="display: none;">
+            <div class="result-box">
+                <div class="result-row">
+                    <div class="result-label">银行角色：</div>
+                    <div class="result-value" id="bank-role"></div>
+                </div>
+
+                <div class="result-row">
+                    <div class="result-label">报文类型</div>
+                    <div class="result-value" id="message-type"></div>
+                </div>
+
+                <div class="result-row">
+                    <div class="result-label">直参行</div>
+                    <div class="result-value" id="direct-participant"></div>
+                </div>
+
+                <div class="result-row">
+                    <div class="result-label">报文类型：</div>
+                    <div class="result-value">
+                        <select id="message-type-select">
+                            <option value="MT103">MT103</option>
+                            <option value="MT202">MT202</option>
+                            <option value="MT202COV">MT202COV</option>
+                            <option value="MT210">MT210</option>
+                            <option value="CIPS报文">CIPS报文</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
