@@ -11,7 +11,7 @@ import subprocess
 # 项目根目录
 ROOT_DIR = Path(__file__).resolve().parent
 # 数据文件路径
-DATA_FILE = ROOT_DIR / 'FakeData' / 'swift_data.xlsx'
+DATA_FILE = ROOT_DIR / 'Data' / 'swift_data.xlsx'
 
 def check_data_file():
     """检查数据文件是否存在"""

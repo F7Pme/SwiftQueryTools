@@ -13,7 +13,7 @@ class SwiftDataService:
         # 项目根目录
         self.root_dir = Path(__file__).resolve().parent.parent
         # 数据文件路径
-        self.data_file = self.root_dir / 'FakeData' / 'swift_data.xlsx'
+        self.data_file = self.root_dir / 'Data' / 'swift_data.xlsx'
         # 数据存储
         self.data = None
     
@@ -33,13 +33,23 @@ class SwiftDataService:
         except Exception as e:
             raise Exception(f"加载数据文件失败: {str(e)}")
     
-    def query_swift(self, swift_code):
-        """查询SWIFT代码"""
+    def query_swift(self, swift_code, exact_match=False):
+        """查询SWIFT代码
+        
+        Args:
+            swift_code: 要查询的SWIFT代码
+            exact_match: 是否精确匹配，False表示模糊匹配
+        """
         if self.data is None:
             self.load_data()
         
-        # 过滤匹配的SWIFT代码记录
-        results = self.data[self.data['SWIFTCODE'].str.upper() == swift_code.upper()]
+        # 查询结果
+        if exact_match:
+            # 精确匹配
+            results = self.data[self.data['SWIFTCODE'].str.upper() == swift_code.upper()]
+        else:
+            # 模糊匹配 - 包含输入字符串的所有记录
+            results = self.data[self.data['SWIFTCODE'].str.upper().str.contains(swift_code.upper())]
         
         if len(results) == 0:
             return []
@@ -55,4 +65,26 @@ class SwiftDataService:
             }
             result_list.append(result_dict)
         
-        return result_list 
+        return result_list
+        
+    def suggest_swift_codes(self, prefix, limit=10):
+        """根据前缀建议SWIFT代码
+        
+        Args:
+            prefix: SWIFT代码前缀
+            limit: 返回结果限制
+        """
+        if self.data is None:
+            self.load_data()
+            
+        if not prefix:
+            return []
+            
+        # 查找所有以前缀开头的SWIFT代码
+        results = self.data[self.data['SWIFTCODE'].str.upper().str.contains(prefix.upper())]
+        
+        # 限制结果数量
+        results = results.head(limit)
+        
+        # 只返回SWIFT代码列表
+        return results['SWIFTCODE'].tolist() 

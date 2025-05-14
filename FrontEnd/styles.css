@@ -38,6 +38,7 @@ body {
 .search-box {
     display: flex;
     margin-bottom: 20px;
+    position: relative;
 }
 
 .search-box input {
@@ -68,6 +69,42 @@ body {
 
 .search-box button:hover {
     background-color: #1565C0;
+}
+
+/* 建议列表样式 */
+.suggestions-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 70px;
+    /* 考虑按钮的宽度 */
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.suggestions-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+    background-color: #f5f5f5;
+}
+
+.suggestion-item:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
 }
 
 /* 结果容器样式 */

@@ -23,7 +23,7 @@ def generate_swift_code():
 def generate_fake_data(num_rows=3000):
     """生成假数据并保存为Excel"""
     # 创建存储目录
-    fake_data_dir = Path('../FakeData')
+    fake_data_dir = Path('../Data')
     fake_data_dir.mkdir(exist_ok=True)
     
     # 定义报文类型

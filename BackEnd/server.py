@@ -39,16 +39,30 @@ def static_files(path):
 def query_swift():
     """查询SWIFT代码API"""
     swift_code = request.args.get('swift', '').strip().upper()
+    exact_match = request.args.get('exact', 'false').lower() == 'true'
     
     if not swift_code:
         return jsonify({'error': '请提供SWIFT业务编号'}), 400
     
     try:
-        results = data_service.query_swift(swift_code)
+        results = data_service.query_swift(swift_code, exact_match)
         return jsonify({'results': results})
     except Exception as e:
         app.logger.error(f"查询出错: {str(e)}")
         return jsonify({'error': f'查询出错: {str(e)}'}), 500
+
+@app.route('/api/suggest')
+def suggest_swift():
+    """根据前缀建议SWIFT代码"""
+    prefix = request.args.get('prefix', '').strip().upper()
+    limit = int(request.args.get('limit', '10'))
+    
+    try:
+        suggestions = data_service.suggest_swift_codes(prefix, limit)
+        return jsonify({'suggestions': suggestions})
+    except Exception as e:
+        app.logger.error(f"获取建议出错: {str(e)}")
+        return jsonify({'error': f'获取建议出错: {str(e)}'}), 500
 
 def start_server(host='127.0.0.1', port=5000, debug=False):
     """启动Flask服务器"""
