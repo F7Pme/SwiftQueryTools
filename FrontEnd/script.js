@@ -31,11 +31,22 @@ document.addEventListener('DOMContentLoaded', function () {
     let debounceTimeout = null;
     const DEBOUNCE_DELAY = 300; // 毫秒
 
+    // 存储下拉框的当前选中值
+    let currentSelectedValue = messageTypeSelect.value;
+
     // 初始化应用
     initApp();
 
     // 初始化应用
     function initApp() {
+        // 设置报文类型下拉框为只读（可点击展开但不可更改值）
+        messageTypeSelect.addEventListener('change', function (e) {
+            // 阻止值的更改，恢复到原来的值
+            setTimeout(function () {
+                messageTypeSelect.value = currentSelectedValue;
+            }, 0);
+        });
+
         // 检查是否已有数据加载
         checkDataStatus();
 
@@ -85,7 +96,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // 设置文件上传
     function setupFileUpload() {
         // 点击上传按钮触发文件选择
-        uploadButton.addEventListener('click', function () {
+        uploadButton.addEventListener('click', function (e) {
+            e.stopPropagation(); // 阻止事件冒泡
             fileInput.click();
         });
 
@@ -96,9 +108,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // 点击拖拽区域触发文件选择
-        dropArea.addEventListener('click', function () {
-            fileInput.click();
+        // 点击拖拽区域触发文件选择 - 排除点击按钮的情况
+        dropArea.addEventListener('click', function (e) {
+            // 确保不是点击按钮
+            if (e.target !== uploadButton && !uploadButton.contains(e.target)) {
+                fileInput.click();
+            }
         });
 
         // 拖拽相关事件
@@ -416,6 +431,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // 如果有报文类型，选中下拉框中对应的选项
             if (result.message_type) {
                 setSelectedOption(messageTypeSelect, result.message_type);
+                // 存储当前选中的值
+                currentSelectedValue = messageTypeSelect.value;
             }
 
             // 显示结果容器
