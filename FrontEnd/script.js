@@ -1,6 +1,17 @@
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function () {
-    // 获取DOM元素
+    // 获取DOM元素 - 上传相关
+    const fileUploadContainer = document.getElementById('file-upload-container');
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const uploadButton = document.getElementById('upload-button');
+    const uploadStatus = document.getElementById('upload-status');
+    const searchSection = document.getElementById('search-section');
+    const fileInfo = document.getElementById('file-info');
+    const fileStats = document.getElementById('file-stats');
+    const resetButton = document.getElementById('reset-button');
+
+    // 获取DOM元素 - 查询相关
     const swiftInput = document.getElementById('swift-input');
     const searchButton = document.getElementById('search-button');
     const resultContainer = document.getElementById('result-container');
@@ -20,18 +31,222 @@ document.addEventListener('DOMContentLoaded', function () {
     let debounceTimeout = null;
     const DEBOUNCE_DELAY = 300; // 毫秒
 
-    // 绑定搜索按钮点击事件
-    searchButton.addEventListener('click', performSearch);
+    // 初始化应用
+    initApp();
 
-    // 绑定输入框回车事件
-    swiftInput.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            performSearch();
+    // 初始化应用
+    function initApp() {
+        // 检查是否已有数据加载
+        checkDataStatus();
+
+        // 设置文件上传事件监听
+        setupFileUpload();
+
+        // 绑定搜索按钮点击事件
+        searchButton.addEventListener('click', performSearch);
+
+        // 绑定输入框回车事件
+        swiftInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // 绑定输入框输入事件
+        swiftInput.addEventListener('input', handleInput);
+
+        // 绑定重置按钮事件
+        resetButton.addEventListener('click', resetApplication);
+
+        // 添加点击事件监听器，处理建议选择
+        document.addEventListener('click', function (e) {
+            // 检查点击是否在建议容器外
+            if (!suggestionsContainer.contains(e.target) && e.target !== swiftInput) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+    }
+
+    // 检查数据状态
+    function checkDataStatus() {
+        fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.loaded) {
+                    // 数据已加载，显示查询界面
+                    showSearchInterface(data);
+                }
+            })
+            .catch(error => {
+                console.error('状态检查失败:', error);
+            });
+    }
+
+    // 设置文件上传
+    function setupFileUpload() {
+        // 点击上传按钮触发文件选择
+        uploadButton.addEventListener('click', function () {
+            fileInput.click();
+        });
+
+        // 文件选择改变时上传文件
+        fileInput.addEventListener('change', function () {
+            if (fileInput.files.length > 0) {
+                uploadFile(fileInput.files[0]);
+            }
+        });
+
+        // 点击拖拽区域触发文件选择
+        dropArea.addEventListener('click', function () {
+            fileInput.click();
+        });
+
+        // 拖拽相关事件
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
-    });
 
-    // 绑定输入框输入事件
-    swiftInput.addEventListener('input', function () {
+        // 高亮拖拽区域
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('active');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('active');
+        }
+
+        // 处理文件拖放
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                uploadFile(files[0]);
+            }
+        }
+    }
+
+    // 上传文件
+    function uploadFile(file) {
+        // 检查文件类型
+        if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+            uploadStatus.innerHTML = '<span style="color: #f44336;">只支持Excel文件(.xlsx, .xls)</span>';
+            return;
+        }
+
+        // 显示上传状态
+        uploadStatus.innerHTML = `<span>正在上传: ${file.name}</span>
+                               <div class="upload-progress">
+                                  <div class="upload-progress-bar" style="width: 0%"></div>
+                               </div>`;
+
+        const progressBar = document.querySelector('.upload-progress-bar');
+
+        // 创建FormData
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // 创建XMLHttpRequest
+        const xhr = new XMLHttpRequest();
+
+        // 上传进度
+        xhr.upload.addEventListener('progress', function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressBar.style.width = percentComplete + '%';
+            }
+        });
+
+        // 请求完成
+        xhr.addEventListener('load', function () {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                uploadStatus.innerHTML = '<span style="color: #4CAF50;">文件上传成功!</span>';
+
+                // 显示查询界面
+                showSearchInterface(response.stats);
+            } else {
+                let errorMsg = '上传失败';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMsg = response.error || errorMsg;
+                } catch (e) { }
+
+                uploadStatus.innerHTML = `<span style="color: #f44336;">${errorMsg}</span>`;
+            }
+        });
+
+        // 请求错误
+        xhr.addEventListener('error', function () {
+            uploadStatus.innerHTML = '<span style="color: #f44336;">网络错误，请重试</span>';
+        });
+
+        // 发送请求
+        xhr.open('POST', '/api/upload');
+        xhr.send(formData);
+    }
+
+    // 显示查询界面
+    function showSearchInterface(stats) {
+        // 隐藏上传区域
+        fileUploadContainer.style.display = 'none';
+
+        // 显示查询区域
+        searchSection.style.display = 'block';
+
+        // 显示文件信息
+        fileInfo.style.display = 'block';
+
+        // 显示文件统计信息
+        let statsHtml = '';
+        if (stats.records) {
+            statsHtml = `<p>已加载 ${stats.records} 条数据记录</p>`;
+        }
+        fileStats.innerHTML = statsHtml;
+
+        // 清空并聚焦搜索框
+        swiftInput.value = '';
+        swiftInput.focus();
+    }
+
+    // 重置应用
+    function resetApplication() {
+        // 显示上传区域
+        fileUploadContainer.style.display = 'block';
+        uploadStatus.innerHTML = '';
+
+        // 隐藏查询区域
+        searchSection.style.display = 'none';
+
+        // 隐藏文件信息
+        fileInfo.style.display = 'none';
+
+        // 清空结果
+        resultContainer.style.display = 'none';
+        errorMessage.textContent = '';
+
+        // 清空输入
+        swiftInput.value = '';
+        fileInput.value = '';
+    }
+
+    // 处理输入事件
+    function handleInput() {
         // 清除之前的延迟
         if (debounceTimeout) {
             clearTimeout(debounceTimeout);
@@ -59,15 +274,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 executeFuzzySearch(inputValue);
             }
         }, DEBOUNCE_DELAY);
-    });
-
-    // 添加点击事件监听器，处理建议选择
-    document.addEventListener('click', function (e) {
-        // 检查点击是否在建议容器外
-        if (!suggestionsContainer.contains(e.target) && e.target !== swiftInput) {
-            suggestionsContainer.style.display = 'none';
-        }
-    });
+    }
 
     // 获取SWIFT代码建议
     function fetchSuggestions(prefix) {

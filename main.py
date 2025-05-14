@@ -10,45 +10,12 @@ import subprocess
 
 # 项目根目录
 ROOT_DIR = Path(__file__).resolve().parent
-# 数据文件路径
-DATA_FILE = ROOT_DIR / 'Data' / 'swift_data.xlsx'
-
-def check_data_file():
-    """检查数据文件是否存在"""
-    return DATA_FILE.exists()
-
-def generate_data():
-    """运行数据生成脚本"""
-    generator_path = ROOT_DIR / 'Tools' / 'GenerateFakeData.py'
-    
-    print("正在生成测试数据...")
-    try:
-        # 使用Python执行GenerateFakeData.py脚本
-        subprocess.run([sys.executable, str(generator_path)], check=True)
-        print("数据生成成功！")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"数据生成失败: {e}")
-        return False
 
 def main():
     """主函数"""
     print("==== 跨境汇款查询工具 ====")
     
-    # 检查数据文件是否存在
-    if not check_data_file():
-        print("未找到数据文件。")
-        user_input = input("是否生成测试数据？(y/n): ").strip().lower()
-        
-        if user_input == 'y':
-            if not generate_data():
-                print("无法继续，请手动运行 Tools/GenerateFakeData.py 生成测试数据")
-                return
-        else:
-            print("请先运行 Tools/GenerateFakeData.py 生成测试数据，然后再运行 main.py")
-            return
-    
-    # 导入后端服务器模块（在确认数据存在后导入，避免导入错误）
+    # 导入后端服务器模块
     sys.path.append(str(ROOT_DIR))
     from BackEnd.server import start_server
     

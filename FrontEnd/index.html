@@ -12,44 +12,64 @@
     <div class="container">
         <h1 class="title">跨境汇款业务查询系统</h1>
 
-        <div class="search-box">
-            <input type="text" id="swift-input" placeholder="请输入SWIFT业务编号（如：FNBCCNBJXXX）" />
-            <button id="search-button">立即查询</button>
+        <!-- 文件上传区域 -->
+        <div id="file-upload-container" class="file-upload-container">
+            <div id="drop-area" class="drop-area">
+                <p>拖拽Excel文件到此处，或</p>
+                <input type="file" id="file-input" accept=".xlsx,.xls" hidden />
+                <button id="upload-button" class="upload-button">选择文件</button>
+                <p class="file-types">支持格式: .xlsx, .xls</p>
+            </div>
+            <div id="upload-status" class="upload-status"></div>
         </div>
 
-        <div class="result-container" id="result-container" style="display: none;">
-            <div class="result-box">
-                <div class="result-row">
-                    <div class="result-label">银行角色：</div>
-                    <div class="result-value" id="bank-role"></div>
-                </div>
+        <!-- 搜索区域（初始隐藏） -->
+        <div id="search-section" class="search-section" style="display: none;">
+            <div class="search-box">
+                <input type="text" id="swift-input" placeholder="请输入SWIFT业务编号（如：FNBCCNBJXXX）" />
+                <button id="search-button">立即查询</button>
+            </div>
 
-                <div class="result-row">
-                    <div class="result-label">报文类型</div>
-                    <div class="result-value" id="message-type"></div>
-                </div>
+            <div class="result-container" id="result-container" style="display: none;">
+                <div class="result-box">
+                    <div class="result-row">
+                        <div class="result-label">银行角色：</div>
+                        <div class="result-value" id="bank-role"></div>
+                    </div>
 
-                <div class="result-row">
-                    <div class="result-label">直参行</div>
-                    <div class="result-value" id="direct-participant"></div>
-                </div>
+                    <div class="result-row">
+                        <div class="result-label">报文类型</div>
+                        <div class="result-value" id="message-type"></div>
+                    </div>
 
-                <div class="result-row">
-                    <div class="result-label">报文类型：</div>
-                    <div class="result-value">
-                        <select id="message-type-select">
-                            <option value="MT103">MT103</option>
-                            <option value="MT202">MT202</option>
-                            <option value="MT202COV">MT202COV</option>
-                            <option value="MT210">MT210</option>
-                            <option value="CIPS报文">CIPS报文</option>
-                        </select>
+                    <div class="result-row">
+                        <div class="result-label">直参行</div>
+                        <div class="result-value" id="direct-participant"></div>
+                    </div>
+
+                    <div class="result-row">
+                        <div class="result-label">报文类型：</div>
+                        <div class="result-value">
+                            <select id="message-type-select">
+                                <option value="MT103">MT103</option>
+                                <option value="MT202">MT202</option>
+                                <option value="MT202COV">MT202COV</option>
+                                <option value="MT210">MT210</option>
+                                <option value="CIPS报文">CIPS报文</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div id="error-message" class="error-message"></div>
         </div>
 
-        <div id="error-message" class="error-message"></div>
+        <!-- 文件信息区域 -->
+        <div id="file-info" class="file-info" style="display: none;">
+            <button id="reset-button" class="reset-button">重新上传文件</button>
+            <div id="file-stats"></div>
+        </div>
     </div>
 
     <script src="script.js"></script>

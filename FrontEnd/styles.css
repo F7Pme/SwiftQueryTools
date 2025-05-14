@@ -34,7 +34,111 @@ body {
     font-weight: bold;
 }
 
+/* 文件上传区域样式 */
+.file-upload-container {
+    margin-bottom: 30px;
+}
+
+.drop-area {
+    border: 2px dashed #d9d9d9;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    background-color: #fafafa;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.drop-area.active {
+    border-color: #1976D2;
+    background-color: #e3f2fd;
+}
+
+.drop-area p {
+    margin-bottom: 15px;
+    color: #666;
+}
+
+.file-types {
+    font-size: 12px;
+    color: #999;
+    margin-top: 10px !important;
+}
+
+.upload-button {
+    background-color: #1976D2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.upload-button:hover {
+    background-color: #1565C0;
+}
+
+.upload-status {
+    margin-top: 15px;
+    text-align: center;
+    min-height: 20px;
+}
+
+.upload-progress {
+    margin-top: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #e0e0e0;
+    overflow: hidden;
+}
+
+.upload-progress-bar {
+    height: 100%;
+    background-color: #1976D2;
+    width: 0;
+    transition: width 0.3s;
+}
+
+/* 文件信息区域 */
+.file-info {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.file-stats {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.reset-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s;
+}
+
+.reset-button:hover {
+    background-color: #d32f2f;
+}
+
 /* 搜索框样式 */
+.search-section {
+    transition: opacity 0.3s;
+}
+
 .search-box {
     display: flex;
     margin-bottom: 20px;
@@ -156,4 +260,12 @@ select {
     text-align: center;
     font-size: 14px;
     min-height: 20px;
+}
+
+/* 成功消息样式 */
+.success-message {
+    color: #4CAF50;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 14px;
 }
